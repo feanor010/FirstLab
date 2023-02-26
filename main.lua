@@ -15,6 +15,7 @@ local Target = {
   height,
   
 }
+--usu
 function Target:new ()
   self.x = math.random(0,windowWidth)
   self.y = math.random(0,windowHeight)
