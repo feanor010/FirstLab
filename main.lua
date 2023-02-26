@@ -47,7 +47,7 @@ end
 
 function Target:IsCursorOnTarget(pos)
   
-  if (love.mouse.getX() > targets[pos].x and love.mouse.getX() < (targets[pos].x + targets[pos].width) and love.mouse.getY() > targets[pos].y and love.mouse.getY() < (targets[pos].y + targets[pos].height)) then
+  if (love.mouse.getX() >= targets[pos].x and love.mouse.getX() <= (targets[pos].x + targets[pos].width) and love.mouse.getY() >= targets[pos].y and love.mouse.getY() <= (targets[pos].y + targets[pos].height)) then
     return true
   end
 end
