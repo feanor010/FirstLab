@@ -98,4 +98,5 @@ function love.draw()
     targets[i]:draw()
   end
   love.graphics.print("Your score = " ..tostring(scores))
+  love.graphics.print("Time to end = "..tostring(gameTime), 1,15)
 end
