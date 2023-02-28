@@ -3,7 +3,7 @@ math.randomseed(os.clock())
 local game = {
   cartridges = 20,
   spread = 30,
-  SPEED = 200,
+  SPEED = 100,
   gameTime = 30,
   minSize = 30,
   spawnKD = 0.5,
@@ -19,8 +19,8 @@ local Target = {
   isActive,
   currentWidth = 0,
   currentHeight = 0,
-  x,
-  y,
+  x = 0,
+  y = 0,
   width,
   height,
   liveTime = 2,
@@ -71,6 +71,10 @@ function Target:isCursorOnTarget(pos)
   end
 end
 
+function Target:easelnSine(dt)
+  
+end
+
 local function isShrapnelEnter(x, y, pos)
   if 
     x >= game.targets[pos].x 
@@ -112,8 +116,7 @@ end
 local function shrapnelShoot()
   for i = 1, game.cartridges do
     local coords = { x = 0, y = 0 }
-    while point_dist(--ДОПИСАТЬ!!!!!!!!!!!!!!!!!!!!!
-  ) >= game.spread do
+    while point_dist(coords.x, coords.y, love.mouse.getX(), love.mouse.getY())  >= game.spread do
       coords.x = math.random(love.mouse.getX() - game.spread, love.mouse.getX() + game.spread)
       coords.y = math.random(love.mouse.getY() - game.spread, love.mouse.getY() + game.spread)
     end 
@@ -136,21 +139,18 @@ function love.update(dt)
 
   for i = 1, #game.targets do
     if game.targets[i] ~= nil and game.targets[i].isActive == 1 then
-      if game.targets[i].direction == 2 then
-        game.targets[i].x = game.targets[i].x + dt * game.SPEED
-      else
-        game.targets[i].x = game.targets[i].x - dt * game.SPEED
-      end
+      game.targets[i].x = game.targets[i].x + game.SPEED * dt
+      game.targets[i].y = game.targets[i].y - game.SPEED * dt * (1 - math.cos((1 - game.targets[i].liveTime * math.pi)/2))
     end
 
     if game.targets[i] ~= nil and game.targets[i]:isTimeToDie(dt) then
       deleteTarget(i)
     end
 
-    if game.targets[i] ~= nil and love.mouse.isDown(1) then
-      shrapnelShoot()
-      --[[ penetration(i)
-      deleteTarget(i) ]]
+    if game.targets[i] ~= nil and love.mouse.isDown(1) and game.targets[i]:isCursorOnTarget(i) then
+      --shrapnelShoot()
+      penetration(i)
+      deleteTarget(i) 
     end
   end
 end
