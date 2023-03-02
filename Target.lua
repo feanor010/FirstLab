@@ -1,4 +1,5 @@
 Target = {
+    type = "standard",
     currentWidth = 0,
     currentHeight = 0,
     x = 0,
@@ -30,15 +31,16 @@ end
 if self.currentHeight < self.height then
     self.currentHeight = self.currentHeight + 7
 end
+love.graphics.setColor(256, 256, 256)
 love.graphics.rectangle('fill', self.x, self.y, self.currentWidth, self.currentHeight)
 end
 
 function Target:isTimeToDie(dt)
 self.liveTime = self.liveTime - dt
 
-if self.liveTime <= 0 then
-    return true
-end
+    if self.liveTime <= 0 then
+        return true
+    end
 end
 
 function Target:isCursorOnTarget(pos)

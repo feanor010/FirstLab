@@ -5,7 +5,8 @@ MoveTarget= {
 setmetatable(MoveTarget ,{__index = Target}) 
 function MoveTarget:new()
     local obj = Target:new()
-    obj.moveType = math.random(1,3) 
+    obj.moveType = math.random(1,3)
+    obj.type = "Move" 
     self.__index = self;
     setmetatable(obj, self)
     return obj
