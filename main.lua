@@ -73,11 +73,11 @@ end
 local function addTarget()
   
   local targetType = math.random(1,2)
-  if (targetType == 1) then
+  --if (targetType == 1) then
     table.insert(game.targets, Target:new())  
-  else
-    table.insert(game.targets, MoveTarget:new())
-  end
+  --lse
+   -- table.insert(game.targets, MoveTarget:new())
+  --end
   game.spawnKD = 0.5
 end
 function love.update(dt)
