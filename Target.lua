@@ -8,13 +8,13 @@ Target = {
     liveTime = 2,
     direction = 0
     }
-  
+
 function Target:new()
 local obj = {
     width = math.random(game.minSize, game.maxSize),
     height = math.random(game.minSize, game.maxSize),
-    x = math.random(0, game.windowWidth - 50),
-    y = math.random(0, game.windowHeight - 50),
+    x = math.random(0, game.WINDOWWIDTH - 50),
+    y = math.random(0, game.WINDOWHEIGHT - 50),
     liveTime = math.random(1, 3),
     isActive = math.random(0, 1),
     direction = math.random(1, 2)
@@ -50,8 +50,4 @@ if
 then
     return true
 end
-end
-
-function Target:easelnSine(dt)
-
 end

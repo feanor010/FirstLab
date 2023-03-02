@@ -1,5 +1,6 @@
 require "Target"
 require "MoveTarget"
+require "Player"
 math.randomseed(os.clock())
 game = {
   cartridges = 20,
@@ -10,11 +11,13 @@ game = {
   spawnKD = 0.5,
   targets = {},
   maxSize = 50,
-  windowWidth = love.graphics.getWidth(),
-  windowHeight = love.graphics.getHeight(),
+  WINDOWWIDTH = love.graphics.getWidth(),
+  WINDOWHEIGHT = love.graphics.getHeight(),
   scores = 0,
   bonusTime = 0.25,
 }
+
+player = Player:new()
 local function isShrapnelEnter(x, y, pos)
   if 
     x >= game.targets[pos].x 
@@ -34,19 +37,9 @@ local function stopGame(dt)
   end
 end
 
-local function deleteTarget(pos)
+function DeleteTarget(pos)
   game.targets[pos], game.targets[#game.targets] = game.targets[#game.targets], game.targets[pos]
   table.remove(game.targets, #game.targets)
-end
-
-local function penetration(pos)
-  if game.targets[pos].isActive == 1 then
-    game.gameTime = game.gameTime + game.bonusTime * 1.5
-    game.scores = game.scores + 20
-  else
-    game.gameTime = game.gameTime + game.bonusTime
-    game.scores = game.scores + 10
-  end
 end
 
 local function point_dist(a, b, a1, b1) 
@@ -63,7 +56,7 @@ local function shrapnelShoot()
     for i = 1, #game.targets do
       if game.targets[i] ~= nil then
         if isShrapnelEnter(coords.x, coords.y, i) then
-          deleteTarget(i)
+          DeleteTarget(i)
         end
       end
     end
@@ -71,38 +64,41 @@ local function shrapnelShoot()
 end
 
 local function addTarget()
-  
+
   local targetType = math.random(1,2)
-  --if (targetType == 1) then
+  
+  if (targetType == 1) then
     table.insert(game.targets, Target:new())  
-  --lse
-   -- table.insert(game.targets, MoveTarget:new())
-  --end
+  else
+    table.insert(game.targets, MoveTarget:new())
+  end
   game.spawnKD = 0.5
 end
 function love.update(dt)
+  
   stopGame(dt)
+  
   game.spawnKD = game.spawnKD - dt
+  
   if game.spawnKD <= 0 then
     addTarget()
   end
-  
+
 
   for i = 1, #game.targets do
-    if game.targets[i] ~= nil and game.targets[i].isActive == 1 then
-      game.targets[i].x = game.targets[i].x + game.SPEED * dt
-      game.targets[i].y = game.targets[i].y - game.SPEED * dt * (1 - math.cos((1 - game.targets[i].liveTime * math.pi)/2))
+
+    if game.targets[i] ~= nil and game.targets[i].moveType~=nil  then
+      game.targets[i]:move(dt)
     end
 
     if game.targets[i] ~= nil and game.targets[i]:isTimeToDie(dt) then
-      deleteTarget(i)
+      DeleteTarget(i)
     end
+    
+    player.shootType = "Default"
 
-    if game.targets[i] ~= nil and love.mouse.isDown(1) and game.targets[i]:isCursorOnTarget(i) then
-      --shrapnelShoot()
-      penetration(i)
-      deleteTarget(i) 
-    end
+    player:shoot(i)
+
   end
 end
 
