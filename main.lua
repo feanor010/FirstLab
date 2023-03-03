@@ -2,6 +2,7 @@ require "Target"
 require "MoveTarget"
 require "Player"
 require "BonusTarget"
+require "FakeTarget"
 math.randomseed(os.clock())
 game = {
   cartridges = 20,
@@ -15,7 +16,7 @@ game = {
   WINDOWWIDTH = love.graphics.getWidth(),
   WINDOWHEIGHT = love.graphics.getHeight(),
   scores = 0,
-  bonusTime = 0.25,
+  bonusTime = 0.5,
 }
 
 player = Player:new()
@@ -33,7 +34,7 @@ function DeleteTarget(pos)
   table.remove(game.targets, #game.targets)
 end
 
- function Point_dist(a, b, a1, b1) 
+function Point_dist(a, b, a1, b1) 
   return math.sqrt((a1-a)^2+(b1-b)^2) 
 end
 
@@ -43,15 +44,26 @@ local function addTarget()
   
   if (targetType <45) then
     table.insert(game.targets, Target:new())  
-  elseif (targetType <90) then
+  elseif (targetType <70) then
     table.insert(game.targets, MoveTarget:new())
-  else
+  elseif (targetType < 90) then
+    table.insert(game.targets, FakeTarget:new())
+  else  
     table.insert (game.targets, BonusTarget:new())
   end
   game.spawnKD = 0.5
 end
+
+function combTime(dt)
+  player.timeCombo = player.timeCombo - dt
+  if player.timeCombo <= 0 then
+      player.playerCombo = 1
+  end
+end
+
 function love.update(dt)
-  
+
+  combTime(dt)
   stopGame(dt)
   
   game.spawnKD = game.spawnKD - dt
@@ -84,6 +96,8 @@ function love.draw()
   for i = 1, #game.targets do
     if (game.targets[i].type == "Bonus") then
       game.targets[i]:drawBonus()
+    elseif (game.targets[i].type == "Fake") then
+      game.targets[i]:drawFake()
     else
       game.targets[i]:draw()
     end
@@ -93,5 +107,6 @@ function love.draw()
   love.graphics.print("Your score = " .. tostring(game.scores))
   love.graphics.print("Time to end = " .. tostring(game.gameTime), 1, 15)
   love.graphics.print("Shoot Type =  " .. player.shootType, 1, 30)
+  love.graphics.print("Combo Bonus =  " .. tostring(player.playerCombo), 1, 45)
   
 end

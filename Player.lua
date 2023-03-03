@@ -1,6 +1,9 @@
 Player = {
     shootType = "Default",
-    shrapnelTime = 0
+    shrapnelTime = 0,
+    playerCombo = 1,
+    timeCombo = 0,
+    kdAfterStoot = 0
     }
 
 function Player:new()
@@ -11,30 +14,47 @@ function Player:new()
 end
 
 function Player:defaultBonus()
+    self.playerCombo = self.playerCombo + 0.1
+    self.timeCombo = 2
     game.gameTime = game.gameTime + game.bonusTime
-    game.scores = game.scores + 10
+    game.scores = game.scores + 10 * self.playerCombo
 
     
 end
 
+
+
 function Player : moveTypeBonus()
+    self.timeCombo = 2
+    self.playerCombo = self.playerCombo + 0.2
     game.gameTime = game.gameTime + game.bonusTime * 1.5
-    game.scores = game.scores + 20
+    game.scores = game.scores + 20 * self.playerCombo
 end
 
-function  Player:defaultShoot(pos)
+function Player : fakeBonus()
+    self.playerCombo = 1
+    self.timeCombo = 0
+    game.gameTime = game.gameTime - game.bonusTime
+    game.scores = game.scores - 20
+end
+
+function  Player:defaultShoot(pos,dt)
+    self.kdAfterStoot = self.kdAfterStoot - dt
     if game.targets[pos] ~= nil and love.mouse.isDown(1) and game.targets[pos]:isCursorOnTarget(pos) then
         if (game.targets[pos].type == "Bonus") then
             self.shootType = "Shrapnel"
             self.shrapnelTime = 3
-        end
-        DeleteTarget(pos)
-        
-        if (game.targets[pos] ~= nil and game.targets[pos].moveType ~= nil) then
-            self:defaultBonus()
-        else 
+        elseif (game.targets[pos] ~= nil and    game.targets[pos].type == "Move" ) then
             self:moveTypeBonus()
+        elseif (game.targets[pos] ~= nil and game.targets[pos].type == "Fake") then
+            self:fakeBonus()
+        else
+            self:defaultBonus()
         end
+        self.kdAfterStoot = 0.5
+        DeleteTarget(pos)
+    elseif (love.mouse.isDown(1) and self.kdAfterStoot <= 0) then
+        self.timeCombo = 0
     end
     
 end
@@ -69,13 +89,14 @@ function  Player:shrapnelShoot(pos)
 end
 
 function Player:shoot (pos, dt) 
+
     if self.shrapnelTime > 0 then
         self.shrapnelTime = self.shrapnelTime - dt
     else
         self.shootType = "Default"
     end
     if self.shootType == "Default" then
-        self:defaultShoot(pos)
+        self:defaultShoot(pos,dt)
         love.mouse.setVisible(true)
     else
         self:shrapnelShoot(pos)
