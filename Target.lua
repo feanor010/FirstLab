@@ -1,5 +1,7 @@
 Target = {
     type = "standard",
+    MINSIZE = 30,
+    MAXSIZE = 50,
     currentWidth = 0,
     currentHeight = 0,
     x = 0,
@@ -12,11 +14,11 @@ Target = {
 
 function Target:new()
 local obj = {
-    width = math.random(game.minSize, game.maxSize),
-    height = math.random(game.minSize, game.maxSize),
+    width = math.random(self.MINSIZE, self.MAXSIZE),
+    height = math.random(self.MINSIZE, self.MAXSIZE),
     x = math.random(0, game.WINDOWWIDTH - 50),
     y = math.random(0, game.WINDOWHEIGHT - 50),
-    liveTime = math.random(5, 10),
+    liveTime = math.random(3, 5),
     isActive = math.random(0, 1),
     direction = math.random(1, 2)
 }
@@ -42,6 +44,11 @@ self.liveTime = self.liveTime - dt
         return true
     end
 end
+
+function Target:DeleteTarget(pos)
+    game.targets[pos], game.targets[#game.targets] = game.targets[#game.targets], game.targets[pos]
+    table.remove(game.targets, #game.targets)
+  end
 
 function Target:isCursorOnTarget(pos)
 if
