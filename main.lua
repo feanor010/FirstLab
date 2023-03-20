@@ -3,6 +3,7 @@ require "MoveTarget"
 require "Player"
 require "BonusTarget"
 require "FakeTarget"
+require "Bullet"
 math.randomseed(os.clock())
 game = {
   gameTime = 30,
@@ -12,7 +13,7 @@ game = {
   WINDOWHEIGHT = love.graphics.getHeight(),
   bonusTime = 0.5,
 }
- 
+
 local player = Player:new()
 
 local function stopGame(dt)
@@ -23,34 +24,35 @@ local function stopGame(dt)
   end
 end
 
+---Добавляет мишень
 local function addTarget()
-  local targetType = math.random(1,100) 
+  local targetType = math.random(1, 100)
 
-  if (targetType <45) then
-    table.insert(game.targets, Target:new())  
-  elseif (targetType <70) then
+  if (targetType < 45) then
+    table.insert(game.targets, Target:new())
+  elseif (targetType < 70) then
     table.insert(game.targets, MoveTarget:new())
   elseif (targetType < 90) then
     table.insert(game.targets, FakeTarget:new())
   else
-    table.insert (game.targets, BonusTarget:new())
+    table.insert(game.targets, BonusTarget:new())
   end
   game.spawnKD = 0.5
 end
 
 function love.update(dt)
+  Bullet:MinusLive(dt)
   player:combTime(dt)
   stopGame(dt)
-  
+
   game.spawnKD = game.spawnKD - dt
-  
+
   if game.spawnKD <= 0 then
     addTarget()
   end
 
   for i = 1, #game.targets do
-
-    if game.targets[i] ~= nil and game.targets[i].moveType~=nil  then
+    if game.targets[i] ~= nil and game.targets[i].moveType ~= nil then
       game.targets[i]:move(dt)
     end
     if game.targets[i] ~= nil and game.targets[i]:isTimeToDie(dt) then
@@ -73,7 +75,7 @@ function love.draw()
       game.targets[i]:draw()
     end
   end
-  
+
   love.graphics.setColor(256, 256, 256)
   love.graphics.print("Your score = " .. tostring(player.scores))
   love.graphics.print("Time to end = " .. tostring(game.gameTime), 1, 15)

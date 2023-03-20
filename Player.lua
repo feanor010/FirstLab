@@ -7,8 +7,8 @@ Player = {
     scores = 0,
     timeCombo = 0,
     mousewasUp = true,
-    kdAfterStoot = 0    
-    }
+    kdAfterStoot = 0
+}
 
 function Player:new()
     local obj = {}
@@ -17,44 +17,50 @@ function Player:new()
     return obj
 end
 
+---Дает игроку обычный бонус
 function Player:defaultBonus()
     self.playerCombo = self.playerCombo + 0.1
     self.timeCombo = 2
     game.gameTime = game.gameTime + game.bonusTime
     self.scores = self.scores + 10 * self.playerCombo
-
-    
 end
 
+---Уменьшает время комбо, а также само комбо
+---@param dt any
 function Player:combTime(dt)
     self.timeCombo = self.timeCombo - dt
     if self.timeCombo <= 0 then
         self.playerCombo = 1
     end
-  end
+end
 
-function Player : moveTypeBonus()
+---Дает бонус за зеленую мешень
+function Player:moveTypeBonus()
     self.timeCombo = 2
     self.playerCombo = self.playerCombo + 0.2
     game.gameTime = game.gameTime + game.bonusTime * 1.5
     self.scores = self.scores + 20 * self.playerCombo
 end
 
-function Player : fakeBonus()
+---Снимает очки за красную мешень
+function Player:fakeBonus()
     self.playerCombo = 1
     self.timeCombo = 0
     game.gameTime = game.gameTime - game.bonusTime
     self.scores = self.scores - 20
 end
 
-function  Player:defaultShoot(pos,dt)
+---Обычная стрельба
+---@param pos number
+---@param dt any
+function Player:defaultShoot(pos, dt)
     self.kdAfterStoot = self.kdAfterStoot - dt
     if game.targets[pos] ~= nil and love.mouse.isDown(1) and game.targets[pos]:isCursorOnTarget(pos) and self.mousewasUp == true then
         self.mousewasUp = false
         if (game.targets[pos].type == "Bonus") then
             self.shootType = "Shrapnel"
             self.shrapnelTime = 3
-        elseif (game.targets[pos] ~= nil and    game.targets[pos].type == "Move" ) then
+        elseif (game.targets[pos] ~= nil and game.targets[pos].type == "Move") then
             self:moveTypeBonus()
         elseif (game.targets[pos] ~= nil and game.targets[pos].type == "Fake") then
             self:fakeBonus()
@@ -66,45 +72,63 @@ function  Player:defaultShoot(pos,dt)
     elseif (love.mouse.isDown(1) and self.kdAfterStoot <= 0) then
         self.timeCombo = 0
     end
-    
 end
 
-function Point_dist(a, b, a1, b1) 
-    return math.sqrt((a1-a)^2+(b1-b)^2) 
+---Вычисляет расстояние между точками
+---@param a number
+---@param b number
+---@param a1 number
+---@param b1 number
+---@return number
+function Point_dist(a, b, a1, b1)
+    return math.sqrt((a1 - a) ^ 2 + (b1 - b) ^ 2)
 end
 
+---Проверяет навелся ли "дробовик" на цель
+---@param x number
+---@param y number
+---@param pos number
+---@return boolean
 local function isShrapnelEnter(x, y, pos)
-    if 
+    if
         game.targets[pos] ~= nil and
-        x >= game.targets[pos].x 
-        and x <= (game.targets[pos].x + game.targets[pos].width) 
-        and y >= game.targets[pos].y 
-        and y <= (game.targets[pos].y + game.targets[pos].height) 
+        x >= game.targets[pos].x
+        and x <= (game.targets[pos].x + game.targets[pos].width)
+        and y >= game.targets[pos].y
+        and y <= (game.targets[pos].y + game.targets[pos].height)
     then
         return true
+    else
+        return false
     end
 end
 
-function  Player:shrapnelShoot(pos)
+
+---Выстрел шрапнелью
+---@param pos number
+function Player:shrapnelShoot(pos)
     for i = 1, self.CARTRIGES do
         local coords = { x = 0, y = 0 }
-        while Point_dist(coords.x, coords.y, love.mouse.getX(), love.mouse.getY())  >= self.SPREAD do
+        repeat
             coords.x = math.random(love.mouse.getX() - self.SPREAD, love.mouse.getX() + self.SPREAD)
             coords.y = math.random(love.mouse.getY() - self.SPREAD, love.mouse.getY() + self.SPREAD)
-        end 
+        until Point_dist(coords.x, coords.y, love.mouse.getX(), love.mouse.getY()) >= self.SPREAD
+
         if game.targets[pos] ~= nil and love.mouse.isDown(1) and isShrapnelEnter(coords.x, coords.y, i) then
             if (game.targets[pos].type == "Bonus") then
-                self.shootType = "Shrapnel"
                 self.shrapnelTime = 3
             end
-                game.targets[pos]:DeleteTarget(pos)
+            game.targets[pos]:DeleteTarget(pos)
         end
     end
 end
 
-function Player:shoot (pos, dt) 
+---Выбор выстрела
+---@param pos number
+---@param dt any
+function Player:shoot(pos, dt)
     if love.mouse.isDown(1) == false then
-        self.mousewasUp = true 
+        self.mousewasUp = true
     end
     if self.shrapnelTime > 0 then
         self.shrapnelTime = self.shrapnelTime - dt
@@ -112,7 +136,7 @@ function Player:shoot (pos, dt)
         self.shootType = "Default"
     end
     if self.shootType == "Default" then
-        self:defaultShoot(pos,dt)
+        self:defaultShoot(pos, dt)
         love.mouse.setVisible(true)
     else
         self:shrapnelShoot(pos)
