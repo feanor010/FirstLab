@@ -37,22 +37,6 @@ function Target:draw()
     love.graphics.setColor(256, 256, 256)
     love.graphics.rectangle('fill', self.x, self.y, self.currentWidth, self.currentHeight)
 end
-
-function Target:isTimeToDie(dt)
-    self.liveTime = self.liveTime - dt
-
-    if self.liveTime <= 0 then
-        return true
-    end
-end
-
----Удаляет мишень
----@param pos number
-function Target:DeleteTarget(pos)
-    game.targets[pos], game.targets[#game.targets] = game.targets[#game.targets], game.targets[pos]
-    table.remove(game.targets, #game.targets)
-end
-
 ---Проверяет навелся ли игрок на цель
 ---@param pos number
 ---@return boolean

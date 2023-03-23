@@ -4,8 +4,10 @@ require "Player"
 require "BonusTarget"
 require "FakeTarget"
 require "Bullet"
+require "Service"
 math.randomseed(os.clock())
 game = {
+  bullets = {},
   gameTime = 30,
   spawnKD = 0.5,
   targets = {},
@@ -41,7 +43,6 @@ local function addTarget()
 end
 
 function love.update(dt)
-  Bullet:MinusLive(dt)
   player:combTime(dt)
   stopGame(dt)
 
@@ -55,10 +56,16 @@ function love.update(dt)
     if game.targets[i] ~= nil and game.targets[i].moveType ~= nil then
       game.targets[i]:move(dt)
     end
-    if game.targets[i] ~= nil and game.targets[i]:isTimeToDie(dt) then
-      Target:DeleteTarget(i)
+    if game.targets[i] ~= nil and isTimeToDie(dt, game.targets[i]) then
+      DeleteEl(i, game.targets)
     end
     player:shoot(i, dt)
+  end
+
+  for i = 1, #game.bullets do
+    if game.bullets[i] ~= nil and isTimeToDie(dt, game.bullets[i]) then
+      DeleteEl(i, game.bullets)
+    end
   end
 end
 
@@ -75,6 +82,12 @@ function love.draw()
       game.targets[i]:draw()
     end
   end
+  for i = 1, #game.bullets do
+    if (game.bullets[i] ~= nil) then
+      game.bullets[i]:bulletDraw()
+    end
+  end
+
 
   love.graphics.setColor(256, 256, 256)
   love.graphics.print("Your score = " .. tostring(player.scores))

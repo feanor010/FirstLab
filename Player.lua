@@ -1,3 +1,4 @@
+require "Service"
 Player = {
     shootType = "Default",
     SPREAD = 30,
@@ -54,6 +55,10 @@ end
 ---@param pos number
 ---@param dt any
 function Player:defaultShoot(pos, dt)
+    if (love.mouse.isDown(1) and self.mousewasUp == true) then
+        table.insert(game.bullets, Bullet:new(love.mouse.getX(), love.mouse.getY()))
+    end
+
     self.kdAfterStoot = self.kdAfterStoot - dt
     if game.targets[pos] ~= nil and love.mouse.isDown(1) and game.targets[pos]:isCursorOnTarget(pos) and self.mousewasUp == true then
         self.mousewasUp = false
@@ -68,7 +73,7 @@ function Player:defaultShoot(pos, dt)
             self:defaultBonus()
         end
         self.kdAfterStoot = 0.5
-        game.targets[pos]:DeleteTarget(pos)
+        DeleteEl(pos, game.targets)
     elseif (love.mouse.isDown(1) and self.kdAfterStoot <= 0) then
         self.timeCombo = 0
     end
@@ -107,18 +112,23 @@ end
 ---Выстрел шрапнелью
 ---@param pos number
 function Player:shrapnelShoot(pos)
-    for i = 1, self.CARTRIGES do
-        local coords = { x = 0, y = 0 }
-        repeat
-            coords.x = math.random(love.mouse.getX() - self.SPREAD, love.mouse.getX() + self.SPREAD)
-            coords.y = math.random(love.mouse.getY() - self.SPREAD, love.mouse.getY() + self.SPREAD)
-        until Point_dist(coords.x, coords.y, love.mouse.getX(), love.mouse.getY()) >= self.SPREAD
-
-        if game.targets[pos] ~= nil and love.mouse.isDown(1) and isShrapnelEnter(coords.x, coords.y, i) then
-            if (game.targets[pos].type == "Bonus") then
-                self.shrapnelTime = 3
+    if (self.mousewasUp) then
+        self.mousewasUp = false
+        for i = 1, self.CARTRIGES do
+            local coords = { x = 0, y = 0 }
+            repeat
+                coords.x = math.random(love.mouse.getX() - self.SPREAD, love.mouse.getX() + self.SPREAD)
+                coords.y = math.random(love.mouse.getY() - self.SPREAD, love.mouse.getY() + self.SPREAD)
+            until Point_dist(coords.x, coords.y, love.mouse.getX(), love.mouse.getY()) <= self.SPREAD
+            if (love.mouse.isDown(1) and self.mousewasUp == true) then
+                table.insert(game.bullets, Bullet:new(coords.x, coords.y))
             end
-            game.targets[pos]:DeleteTarget(pos)
+            if game.targets[pos] ~= nil and love.mouse.isDown(1) and isShrapnelEnter(coords.x, coords.y, i) then
+                if (game.targets[pos].type == "Bonus") then
+                    self.shrapnelTime = 3
+                end
+                DeleteEl(pos, game.targets)
+            end
         end
     end
 end

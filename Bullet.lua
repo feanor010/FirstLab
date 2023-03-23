@@ -1,18 +1,29 @@
 Bullet = {
     x = 0,
     y = 0,
-    liveTime = 0
+    liveTime = 0,
+    width = 0,
+    height = 0
 }
 
-function Bullet:new()
+---@param coordX number
+---@param coordY number
+---@return table
+function Bullet:new(coordX, coordY)
     local obj = {
-        liveTime = 1
+        x = coordX,
+        y = coordY,
+        liveTime = 1,
+        width = 5,
+        height = 5
     }
     self.__index = self
     setmetatable(obj, self)
     return obj
 end
 
-function  Bullet:MinusLive(dt)
-    self.liveTime = self.liveTime - dt
+
+function Bullet:bulletDraw()
+    love.graphics.setColor(256, 256, 256)
+    love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
 end
