@@ -17,3 +17,15 @@ function DeleteEl(pos, arr)
         table.remove(arr, #arr)
     end
 end
+
+function IsOnTheTarget(x, y, target)
+    if target ~= nil and
+        x >= target.x
+        and x <= (target.x + target.width)
+        and y >= target.y
+        and y <= (target.y + target.height) then
+        return true
+    else
+        return false
+    end
+end

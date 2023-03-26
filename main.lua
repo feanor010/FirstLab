@@ -30,11 +30,11 @@ end
 local function addTarget()
   local targetType = math.random(1, 100)
 
-  if (targetType < 45) then
+  if (targetType < 30) then
     table.insert(game.targets, Target:new())
   elseif (targetType < 70) then
     table.insert(game.targets, MoveTarget:new())
-  elseif (targetType < 90) then
+  elseif (targetType < 80) then
     table.insert(game.targets, FakeTarget:new())
   else
     table.insert(game.targets, BonusTarget:new())
@@ -94,4 +94,5 @@ function love.draw()
   love.graphics.print("Time to end = " .. tostring(game.gameTime), 1, 15)
   love.graphics.print("Shoot Type =  " .. player.shootType, 1, 30)
   love.graphics.print("Combo Bonus =  " .. tostring(player.playerCombo), 1, 45)
+  love.graphics.print("Combo Bonus =  " .. tostring(player.mousewasUp), 1, 60)
 end

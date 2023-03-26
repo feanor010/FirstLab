@@ -37,18 +37,4 @@ function Target:draw()
     love.graphics.setColor(256, 256, 256)
     love.graphics.rectangle('fill', self.x, self.y, self.currentWidth, self.currentHeight)
 end
----Проверяет навелся ли игрок на цель
----@param pos number
----@return boolean
-function Target:isCursorOnTarget(pos)
-    if
-        love.mouse.getX() >= game.targets[pos].x
-        and love.mouse.getX() <= (game.targets[pos].x + game.targets[pos].width)
-        and love.mouse.getY() >= game.targets[pos].y
-        and love.mouse.getY() <= (game.targets[pos].y + game.targets[pos].height)
-    then
-        return true
-    else
-        return false
-    end
-end
+

@@ -22,8 +22,9 @@ function Bullet:new(coordX, coordY)
     return obj
 end
 
-
 function Bullet:bulletDraw()
     love.graphics.setColor(256, 256, 256)
     love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
 end
+
+

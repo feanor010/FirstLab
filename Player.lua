@@ -58,24 +58,29 @@ function Player:defaultShoot(pos, dt)
     if (love.mouse.isDown(1) and self.mousewasUp == true) then
         table.insert(game.bullets, Bullet:new(love.mouse.getX(), love.mouse.getY()))
     end
-
     self.kdAfterStoot = self.kdAfterStoot - dt
-    if game.targets[pos] ~= nil and love.mouse.isDown(1) and game.targets[pos]:isCursorOnTarget(pos) and self.mousewasUp == true then
+    if game.targets[pos] ~= nil and love.mouse.isDown(1) and IsOnTheTarget(love.mouse.getX(), love.mouse.getY(), game.targets[pos]) and self.mousewasUp == true then
         self.mousewasUp = false
-        if (game.targets[pos].type == "Bonus") then
-            self.shootType = "Shrapnel"
-            self.shrapnelTime = 3
-        elseif (game.targets[pos] ~= nil and game.targets[pos].type == "Move") then
-            self:moveTypeBonus()
-        elseif (game.targets[pos] ~= nil and game.targets[pos].type == "Fake") then
-            self:fakeBonus()
-        else
-            self:defaultBonus()
-        end
+        self:bonus(pos)
         self.kdAfterStoot = 0.5
         DeleteEl(pos, game.targets)
     elseif (love.mouse.isDown(1) and self.kdAfterStoot <= 0) then
         self.timeCombo = 0
+    end
+end
+
+---Выбирает, какой бонус дать игроку
+---@param pos number
+function Player:bonus(pos)
+    if (game.targets[pos].type == "Bonus") then
+        self.shootType = "Shrapnel"
+        self.shrapnelTime = self.shrapnelTime + 4
+    elseif (game.targets[pos] ~= nil and game.targets[pos].type == "Move") then
+        self:moveTypeBonus()
+    elseif (game.targets[pos] ~= nil and game.targets[pos].type == "Fake") then
+        self:fakeBonus()
+    else
+        self:defaultBonus()
     end
 end
 
@@ -89,30 +94,10 @@ function Point_dist(a, b, a1, b1)
     return math.sqrt((a1 - a) ^ 2 + (b1 - b) ^ 2)
 end
 
----Проверяет навелся ли "дробовик" на цель
----@param x number
----@param y number
----@param pos number
----@return boolean
-local function isShrapnelEnter(x, y, pos)
-    if
-        game.targets[pos] ~= nil and
-        x >= game.targets[pos].x
-        and x <= (game.targets[pos].x + game.targets[pos].width)
-        and y >= game.targets[pos].y
-        and y <= (game.targets[pos].y + game.targets[pos].height)
-    then
-        return true
-    else
-        return false
-    end
-end
-
-
 ---Выстрел шрапнелью
 ---@param pos number
 function Player:shrapnelShoot(pos)
-    if (self.mousewasUp) then
+    if (love.mouse.isDown(1) and self.mousewasUp) then
         self.mousewasUp = false
         for i = 1, self.CARTRIGES do
             local coords = { x = 0, y = 0 }
@@ -120,14 +105,12 @@ function Player:shrapnelShoot(pos)
                 coords.x = math.random(love.mouse.getX() - self.SPREAD, love.mouse.getX() + self.SPREAD)
                 coords.y = math.random(love.mouse.getY() - self.SPREAD, love.mouse.getY() + self.SPREAD)
             until Point_dist(coords.x, coords.y, love.mouse.getX(), love.mouse.getY()) <= self.SPREAD
-            if (love.mouse.isDown(1) and self.mousewasUp == true) then
-                table.insert(game.bullets, Bullet:new(coords.x, coords.y))
-            end
-            if game.targets[pos] ~= nil and love.mouse.isDown(1) and isShrapnelEnter(coords.x, coords.y, i) then
-                if (game.targets[pos].type == "Bonus") then
-                    self.shrapnelTime = 3
+            table.insert(game.bullets, Bullet:new(coords.x, coords.y))
+            for k, v in ipairs(game.targets) do
+                if game.targets[k] ~= nil and IsOnTheTarget(coords.x, coords.y, game.targets[k]) then
+                    self:bonus(k)
+                    DeleteEl(k, game.targets)
                 end
-                DeleteEl(pos, game.targets)
             end
         end
     end
