@@ -59,9 +59,8 @@ function love.update(dt)
     if game.targets[i] ~= nil and isTimeToDie(dt, game.targets[i]) then
       DeleteEl(i, game.targets)
     end
-    player:shoot(i, dt)
   end
-
+  player:shoot(dt)
   for i = 1, #game.bullets do
     if game.bullets[i] ~= nil and isTimeToDie(dt, game.bullets[i]) then
       DeleteEl(i, game.bullets)

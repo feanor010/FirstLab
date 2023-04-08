@@ -3,6 +3,7 @@ MoveType = {
     easelnSine = 1,
     easeInBack = 2,
     easeInOutElastic = 3,
+    bez = 4,
 }
 
 local VALUES = {}

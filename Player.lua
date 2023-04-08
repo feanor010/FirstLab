@@ -52,20 +52,22 @@ function Player:fakeBonus()
 end
 
 ---Обычная стрельба
----@param pos number
 ---@param dt any
-function Player:defaultShoot(pos, dt)
+function Player:defaultShoot(dt)
+    for i, targ in ipairs(game.targets) do
+        if targ ~= nil and love.mouse.isDown(1) and IsOnTheTarget(love.mouse.getX(), love.mouse.getY(), targ) and self.mousewasUp then
+            self.mousewasUp = false
+            self:bonus(i)
+            self.kdAfterStoot = 0.5
+            DeleteEl(i, game.targets)
+        elseif (love.mouse.isDown(1) and self.kdAfterStoot <= 0) then
+            self.timeCombo = 0
+        end
+        self.kdAfterStoot = self.kdAfterStoot - dt
+    end
     if (love.mouse.isDown(1) and self.mousewasUp == true) then
         table.insert(game.bullets, Bullet:new(love.mouse.getX(), love.mouse.getY()))
-    end
-    self.kdAfterStoot = self.kdAfterStoot - dt
-    if game.targets[pos] ~= nil and love.mouse.isDown(1) and IsOnTheTarget(love.mouse.getX(), love.mouse.getY(), game.targets[pos]) and self.mousewasUp == true then
         self.mousewasUp = false
-        self:bonus(pos)
-        self.kdAfterStoot = 0.5
-        DeleteEl(pos, game.targets)
-    elseif (love.mouse.isDown(1) and self.kdAfterStoot <= 0) then
-        self.timeCombo = 0
     end
 end
 
@@ -94,9 +96,7 @@ function Point_dist(a, b, a1, b1)
     return math.sqrt((a1 - a) ^ 2 + (b1 - b) ^ 2)
 end
 
----Выстрел шрапнелью
----@param pos number
-function Player:shrapnelShoot(pos)
+function Player:shrapnelShoot()
     if (love.mouse.isDown(1) and self.mousewasUp) then
         self.mousewasUp = false
         for i = 1, self.CARTRIGES do
@@ -117,9 +117,8 @@ function Player:shrapnelShoot(pos)
 end
 
 ---Выбор выстрела
----@param pos number
 ---@param dt any
-function Player:shoot(pos, dt)
+function Player:shoot(dt)
     if love.mouse.isDown(1) == false then
         self.mousewasUp = true
     end
@@ -129,10 +128,10 @@ function Player:shoot(pos, dt)
         self.shootType = "Default"
     end
     if self.shootType == "Default" then
-        self:defaultShoot(pos, dt)
+        self:defaultShoot(dt)
         love.mouse.setVisible(true)
     else
-        self:shrapnelShoot(pos)
+        self:shrapnelShoot()
         love.mouse.setVisible(false)
     end
 end

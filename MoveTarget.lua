@@ -1,18 +1,27 @@
 require("MoveType")
+local bezie = require("Bezier_Movement")
 MoveTarget = {
-    SPEED = 100,
-    moveType = MoveType.easeInBack, -- использовать MoveType (enum)
+    SPEED = 200,
+    moveType = MoveType.bez, -- использовать MoveType (enum)
     abciss = 0,
     directionX = 0,
-    directionY = 0
+    directionY = 0,
+    time = 0,
+    randPoints = { p2 = { x = 0, y = 0 }, p3 = { x = 0, y = 0 }, p4 = { x = 0, y = 0 } }
 }
 setmetatable(MoveTarget, { __index = Target })
 function MoveTarget:new()
     local obj = Target:new()
     -- obj.moveType = math.random(1, #MoveType)
     obj.moveType = MoveType.random()
+    if obj.moveType == MoveType.bez then
+        self.randPoints.p2 = { x = math.random(0, game.WINDOWWIDTH), y = math.random(0, game.WINDOWHEIGHT) }
+        self.randPoints.p3 = { x = math.random(0, game.WINDOWWIDTH), y = math.random(0, game.WINDOWHEIGHT) }
+        self.randPoints.p4 = { x = math.random(0, game.WINDOWWIDTH), y = math.random(0, game.WINDOWHEIGHT) }
+    end
     obj.type = "Move"
     obj.abciss = 0
+    obj.time = 0
     obj.directionX = math.random(0, 1)
     if obj.directionX == 0 then
         obj.directionX = -1
@@ -33,7 +42,23 @@ function MoveTarget:move(dt)
         self:easeInBack(dt)
     elseif self.moveType == MoveType.easeInOutElastic then
         self:easeInOutElastic(dt)
+    elseif self.moveType == MoveType.bez then
+        self:bez(dt)
     end
+end
+
+function MoveTarget:bez(dt)
+    self.abciss = self.abciss + 1/1000 * dt
+    self.x = bezie.cubic_bezier({ x = self.x, y = self.y },
+            { x = self.randPoints.p2.x, y = self.randPoints.p2.y },
+            { x = self.randPoints.p3.x, y = self.randPoints.p3.y },
+            { x = self.randPoints.p4.x, y = self.randPoints.p4.y },
+            self.abciss).x
+    self.y = bezie.cubic_bezier({ x = self.x, y = self.y },
+            { x = self.randPoints.p2.x, y = self.randPoints.p2.y },
+            { x = self.randPoints.p3.x, y = self.randPoints.p3.y },
+            { x = self.randPoints.p4.x, y = self.randPoints.p4.y },
+            self.abciss).y
 end
 
 ---Применить функцию плавности "синус"

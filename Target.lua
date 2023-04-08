@@ -18,7 +18,7 @@ function Target:new()
         height = math.random(self.MINSIZE, self.MAXSIZE),
         x = math.random(0, game.WINDOWWIDTH - 50),
         y = math.random(0, game.WINDOWHEIGHT - 50),
-        liveTime = math.random(3, 5),
+        liveTime = 22,
         isActive = math.random(0, 1),
         direction = math.random(1, 2)
     }
