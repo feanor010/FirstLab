@@ -7,17 +7,17 @@ MoveTarget = {
     directionX = 0,
     directionY = 0,
     time = 0,
-    randPoints = { p2 = { x = 0, y = 0 }, p3 = { x = 0, y = 0 }, p4 = { x = 0, y = 0 } }
 }
 setmetatable(MoveTarget, { __index = Target })
 function MoveTarget:new()
     local obj = Target:new()
     -- obj.moveType = math.random(1, #MoveType)
-    obj.moveType = MoveType.random()
+    obj.randPoints = { p2 = { x = 0, y = 0 }, p3 = { x = 0, y = 0 }, p4 = { x = 0, y = 0 } }
+    obj.moveType = MoveType.bez
     if obj.moveType == MoveType.bez then
-        self.randPoints.p2 = { x = math.random(0, game.WINDOWWIDTH), y = math.random(0, game.WINDOWHEIGHT) }
-        self.randPoints.p3 = { x = math.random(0, game.WINDOWWIDTH), y = math.random(0, game.WINDOWHEIGHT) }
-        self.randPoints.p4 = { x = math.random(0, game.WINDOWWIDTH), y = math.random(0, game.WINDOWHEIGHT) }
+        obj.randPoints.p2 = { x = math.random(0, game.WINDOWWIDTH), y = math.random(0, game.WINDOWHEIGHT) }
+        obj.randPoints.p3 = { x = math.random(0, game.WINDOWWIDTH), y = math.random(0, game.WINDOWHEIGHT) }
+        obj.randPoints.p4 = { x = math.random(0, game.WINDOWWIDTH), y = math.random(0, game.WINDOWHEIGHT) }
     end
     obj.type = "Move"
     obj.abciss = 0
@@ -45,10 +45,20 @@ function MoveTarget:move(dt)
     elseif self.moveType == MoveType.bez then
         self:bez(dt)
     end
+
+    self:repulsion()
+end
+
+function MoveTarget:repulsion()
+    if (self.x <= 0 or self.x + self.width >= love.graphics.getPixelWidth()) then
+        self.directionX = self.directionX * -1
+    elseif (self.y <= 0 or self.y + self.height >= love.graphics.getPixelHeight()) then
+        self.directionY = self.directionY * -1
+    end
 end
 
 function MoveTarget:bez(dt)
-    self.abciss = self.abciss + 1/1000 * dt
+    self.abciss = self.abciss + 1 / 1000 * dt
     self.x = bezie.cubic_bezier({ x = self.x, y = self.y },
             { x = self.randPoints.p2.x, y = self.randPoints.p2.y },
             { x = self.randPoints.p3.x, y = self.randPoints.p3.y },
@@ -85,7 +95,7 @@ function MoveTarget:easeInOutElastic(dt)
     self.abciss = self.abciss + dt
     local C5 = (2 * math.pi) / 4.5
 
-    self.x = self.x + self.SPEED * dt
+    self.x = self.x + self.SPEED * dt * self.directionX
 
     if (self.abciss < 0.5) then
         self.y = self.y -

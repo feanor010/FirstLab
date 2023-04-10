@@ -38,3 +38,4 @@ function Target:draw()
     love.graphics.rectangle('fill', self.x, self.y, self.currentWidth, self.currentHeight)
 end
 
+

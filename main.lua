@@ -8,7 +8,7 @@ require "Service"
 math.randomseed(os.clock())
 game = {
   bullets = {},
-  gameTime = 30,
+  gameTime = 3000 ,
   spawnKD = 0.5,
   targets = {},
   WINDOWWIDTH = love.graphics.getWidth(),

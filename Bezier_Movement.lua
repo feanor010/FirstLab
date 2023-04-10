@@ -17,7 +17,7 @@ local function lerp2d(a, b, t)
     }
 end
 
----comment
+---Кубическое безье
 ---@param p1 table{x,y}
 ---@param t number
 ---@return table

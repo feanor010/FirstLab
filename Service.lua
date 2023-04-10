@@ -18,6 +18,11 @@ function DeleteEl(pos, arr)
     end
 end
 
+---Проверяет находится ли курсор на цели
+---@param x number
+---@param y number
+---@param target table
+---@return boolean
 function IsOnTheTarget(x, y, target)
     if target ~= nil and
         x >= target.x
