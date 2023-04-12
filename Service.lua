@@ -1,4 +1,4 @@
-function isTimeToDie(dt, el)
+function IsTimeToDie(dt, el)
     el.liveTime = el.liveTime - dt
 
     if el.liveTime <= 0 then
